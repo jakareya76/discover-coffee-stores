@@ -3,12 +3,13 @@ import Head from "next/head";
 import Hero from "../components/Hero";
 import Card from "@/components/Card";
 
-import coffeeStoresData from "../data/coffee-stores.json";
+import { fetchCoffeeStores } from "../lib/coffee-stores";
 
 export const getStaticProps = async () => {
+  const coffeeStores = await fetchCoffeeStores();
   return {
     props: {
-      coffeeStores: coffeeStoresData,
+      coffeeStores,
     },
   };
 };

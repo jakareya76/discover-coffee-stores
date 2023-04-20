@@ -3,25 +3,27 @@ import Link from "next/link";
 import Head from "next/head";
 import Image from "next/image";
 
-import coffeeStoresData from "../../data/coffee-stores.json";
+import { fetchCoffeeStores } from "../../lib/coffee-stores";
 
 export const getStaticProps = async (context) => {
   const params = context.params;
+  const coffeeStores = await fetchCoffeeStores();
 
   return {
     props: {
-      coffeeStores: coffeeStoresData.find((coffeStore) => {
-        return coffeStore.id.toString() === params.slug;
+      coffeeStores: coffeeStores.find((coffeStore) => {
+        return coffeStore.id === params.slug;
       }),
     },
   };
 };
 
-export const getStaticPaths = () => {
-  const paths = coffeeStoresData.map((coffeeStore) => {
+export const getStaticPaths = async () => {
+  const coffeeStores = await fetchCoffeeStores();
+  const paths = coffeeStores.map((coffeeStore) => {
     return {
       params: {
-        slug: coffeeStore.id.toString(),
+        slug: coffeeStore.id,
       },
     };
   });
@@ -43,24 +45,28 @@ const slug = ({ coffeeStores }) => {
     console.log("Up Vote");
   };
 
+  const { name, address, imgUrl, locality } = coffeeStores;
+
   return (
     <>
       <Head>
-        <title>{coffeeStores.name}</title>
+        <title>{name}</title>
       </Head>
       <main className="container mx-auto flex flex-col justify-center py-20 md:py-44">
         <div className="w-full flex">
-          <button className="bg-zinc-800 px-6 py-4 text-zinc-400 font-semibold rounded-md mx-5">
-            Back To Home
-          </button>
+          <Link href="/">
+            <button className="bg-zinc-800 px-6 py-4 text-zinc-400 font-semibold rounded-md mx-5">
+              Back To Home
+            </button>
+          </Link>
         </div>
         <div className="bg-zinc-800 my-10 py-12 px-8 mx-5">
           <h1 className="text-4xl text-center underline mb-8 text-zinc-400">
-            {coffeeStores.name}
+            {name}
           </h1>
           <div className="flex flex-col items-center justify-center gap-10 py-10 md:flex-row">
             <Image
-              src={coffeeStores.imgUrl}
+              src={imgUrl}
               alt="img"
               width={420}
               height={260}
@@ -75,7 +81,7 @@ const slug = ({ coffeeStores }) => {
                   className="fill-zinc-400"
                 />
                 <p className="text-zinc-400 text-md font-semibold md:text-xl">
-                  {coffeeStores.address}
+                  {address}
                 </p>
               </div>
               <div className="flex space-x-2 py-2">
@@ -86,7 +92,7 @@ const slug = ({ coffeeStores }) => {
                   className="fill-zinc-400"
                 />
                 <p className="text-zinc-400 text-md font-semibold md:text-xl">
-                  {coffeeStores.neighbourhood}
+                  {locality}
                 </p>
               </div>
               <div className="flex space-x-2 py-2">
