@@ -9,11 +9,13 @@ export const getStaticProps = async (context) => {
   const params = context.params;
   const coffeeStores = await fetchCoffeeStores();
 
+  const findCoffeeStoreById = coffeeStores.find((coffeStore) => {
+    return coffeStore.id === params.slug;
+  });
+
   return {
     props: {
-      coffeeStores: coffeeStores.find((coffeStore) => {
-        return coffeStore.id === params.slug;
-      }),
+      coffeeStores: findCoffeeStoreById ? findCoffeeStoreById : {},
     },
   };
 };
@@ -66,7 +68,10 @@ const slug = ({ coffeeStores }) => {
           </h1>
           <div className="flex flex-col items-center justify-center gap-10 py-10 md:flex-row">
             <Image
-              src={imgUrl}
+              src={
+                imgUrl ||
+                "https://images.unsplash.com/photo-1493857671505-72967e2e2760?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80"
+              }
               alt="img"
               width={420}
               height={260}
