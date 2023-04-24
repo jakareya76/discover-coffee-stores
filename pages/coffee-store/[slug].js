@@ -1,9 +1,12 @@
+import { useContext, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import Head from "next/head";
 import Image from "next/image";
 
 import { fetchCoffeeStores } from "../../lib/coffee-stores";
+import { StoreContext } from "@/context/storeContext";
+import { isEmpty } from "@/utils";
 
 export const getStaticProps = async (context) => {
   const params = context.params;
@@ -36,18 +39,36 @@ export const getStaticPaths = async () => {
   };
 };
 
-const slug = ({ coffeeStores }) => {
-  const router = useRouter();
+const slug = (initialProps) => {
+  const [coffeeStore, setCoffeeStore] = useState(initialProps.coffeeStores);
 
-  if (router.isFallback) {
-    return <h1 className="text-white text-xl">Loading...</h1>;
-  }
+  const router = useRouter();
+  const slug = router.query.slug;
+
+  const {
+    state: { coffeeStores },
+  } = useContext(StoreContext);
+
+  useEffect(() => {
+    if (isEmpty(initialProps.coffeeStores)) {
+      if (coffeeStores.length > 0) {
+        const findCoffeeStoreById = coffeeStores.find((coffeStore) => {
+          return coffeStore.id === slug;
+        });
+        setCoffeeStore(findCoffeeStoreById);
+      }
+    }
+  }, [slug]);
 
   const handleUpVote = () => {
     console.log("Up Vote");
   };
 
-  const { name, address, imgUrl, locality } = coffeeStores;
+  const { name, address, imgUrl, locality } = coffeeStore;
+
+  if (router.isFallback) {
+    return <h1 className="text-white text-xl">Loading...</h1>;
+  }
 
   return (
     <>
@@ -80,7 +101,8 @@ const slug = ({ coffeeStores }) => {
             <div className="w-full md:w-1/2">
               <div className="flex space-x-2 py-2">
                 <Image
-                  src="/svg/location.svg"
+                  src="/location.svg"
+                  alt="img"
                   width={24}
                   height={24}
                   className="fill-zinc-400"
@@ -91,7 +113,8 @@ const slug = ({ coffeeStores }) => {
               </div>
               <div className="flex space-x-2 py-2">
                 <Image
-                  src="/svg/near.svg"
+                  src="/near.svg"
+                  alt="img"
                   width={24}
                   height={24}
                   className="fill-zinc-400"
@@ -102,7 +125,8 @@ const slug = ({ coffeeStores }) => {
               </div>
               <div className="flex space-x-2 py-2">
                 <Image
-                  src="/svg/star.svg"
+                  src="/star.svg"
+                  alt="img"
                   width={24}
                   height={24}
                   className="fill-zinc-400"

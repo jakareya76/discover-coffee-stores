@@ -1,5 +1,12 @@
-import '@/styles/globals.css'
+import { createContext, useReducer } from "react";
+import "@/styles/globals.css";
+
+import { StoreProvider } from "@/context/storeContext";
 
 export default function App({ Component, pageProps }) {
-  return <Component {...pageProps} />
+  return (
+    <StoreProvider>
+      <Component {...pageProps} />;
+    </StoreProvider>
+  );
 }

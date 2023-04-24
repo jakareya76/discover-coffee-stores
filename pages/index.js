@@ -1,5 +1,6 @@
 import Head from "next/head";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { ACTION_TYPE, StoreContext } from "@/context/storeContext";
 
 import Hero from "../components/Hero";
 import Card from "@/components/Card";
@@ -17,18 +18,25 @@ export const getStaticProps = async () => {
 };
 
 const Home = ({ coffeeStores }) => {
-  const [localCoffeeStore, setLocalCoffeeStore] = useState("");
   const [localCoffeeStoreError, setLocalCoffeeStoreError] = useState(null);
 
-  const { handleTrackLocation, latLong, locationErrorMsg, isFindingLocation } =
+  const { handleTrackLocation, locationErrorMsg, isFindingLocation } =
     useTrackLocation();
+
+  const { dispatch, state } = useContext(StoreContext);
+
+  const { latLong } = state;
 
   useEffect(() => {
     const fetchingCoffeeStores = async () => {
       if (latLong) {
         try {
           const fetchedCoffeeStores = await fetchCoffeeStores(latLong, 30);
-          setLocalCoffeeStore(fetchedCoffeeStores);
+
+          dispatch({
+            type: ACTION_TYPE.SET_COFFEE_STORES,
+            payload: { coffeeStores: fetchedCoffeeStores },
+          });
         } catch (error) {
           setLocalCoffeeStoreError(error.message);
         }
@@ -63,9 +71,9 @@ const Home = ({ coffeeStores }) => {
           handleOnClick={handleOnBannerBtnClick}
         />
 
-        {localCoffeeStore && (
+        {state.coffeeStores && (
           <div className="flex items-center flex-col py-10">
-            {localCoffeeStore ? (
+            {state.coffeeStores.length > 0 ? (
               <div className="w-full flex items-center justify-center">
                 <h2 className="text-4xl font-mono font-bold text-zinc-300 mb-10 underline">
                   Stores Near me
@@ -73,7 +81,7 @@ const Home = ({ coffeeStores }) => {
               </div>
             ) : null}
             <div className="grid grid-cols-1 place-items-center gap-10 md:grid-cols-2 lg:grid-cols-3">
-              {localCoffeeStore.map((coffeeStore) => {
+              {state.coffeeStores.map((coffeeStore) => {
                 return (
                   <Card
                     name={coffeeStore.name}
