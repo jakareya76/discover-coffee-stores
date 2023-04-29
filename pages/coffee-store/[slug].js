@@ -49,16 +49,47 @@ const slug = (initialProps) => {
     state: { coffeeStores },
   } = useContext(StoreContext);
 
+  const handleCreateCoffeeStore = async (coffeeStore) => {
+    try {
+      const { id, name, voting, imgUrl, locality, address } = coffeeStore;
+
+      const response = await fetch("/api/createCoffeeStore", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id,
+          name,
+          voting: 0,
+          imgUrl,
+          locality: locality || "",
+          address: address || "",
+        }),
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
+    console.log("initial Render");
     if (isEmpty(initialProps.coffeeStores)) {
       if (coffeeStores.length > 0) {
-        const findCoffeeStoreById = coffeeStores.find((coffeStore) => {
+        const coffeeStoreFromContext = coffeeStores.find((coffeStore) => {
           return coffeStore.id === slug;
         });
-        setCoffeeStore(findCoffeeStoreById);
+
+        if (coffeeStoreFromContext) {
+          setCoffeeStore(coffeeStoreFromContext);
+          handleCreateCoffeeStore(coffeeStoreFromContext);
+        }
       }
+    } else {
+      // SSG
+      handleCreateCoffeeStore(initialProps.coffeeStores);
     }
-  }, [slug]);
+  }, [slug, initialProps, initialProps.coffeeStores]);
 
   const handleUpVote = () => {
     console.log("Up Vote");
