@@ -1,14 +1,6 @@
-import Airtable from "airtable";
-
-const base = new Airtable({
-  apiKey: process.env.AIRTABLE_API_KEY,
-}).base(process.env.AIRTABLE_BASE_KEY);
-
-const table = base("Coffee Stores");
+import { getMinifiedRecords, table } from "@/lib/airtable";
 
 const createCoffeeStore = async (req, res) => {
-  // find a record
-
   const { id, name, address, locality, imgUrl, voting } = req.body;
 
   try {
@@ -20,9 +12,7 @@ const createCoffeeStore = async (req, res) => {
         .firstPage();
 
       if (findCoffeeStoreRecords.length !== 0) {
-        const records = findCoffeeStoreRecords.map((record) => {
-          return { ...record.fields };
-        });
+        const records = getMinifiedRecords(findCoffeeStoreRecords);
 
         res.json(records);
       } else {
@@ -41,9 +31,7 @@ const createCoffeeStore = async (req, res) => {
             },
           ]);
 
-          const records = createRecords.map((record) => {
-            return { ...record.fields };
-          });
+          const records = getMinifiedRecords(createRecords);
 
           res.json({ records });
         } else {
@@ -56,7 +44,6 @@ const createCoffeeStore = async (req, res) => {
       res.json({ message: "Id Is Missing" });
     }
   } catch (error) {
-    console.error(error);
     res.status(500);
     res.json({ message: "something went wrong" });
   }
