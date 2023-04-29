@@ -78,7 +78,7 @@ const Home = ({ coffeeStores }) => {
         />
 
         {state.coffeeStores && (
-          <div className="flex items-center flex-col py-10">
+          <div className="flex items-center flex-col pt-24">
             {state.coffeeStores.length > 0 ? (
               <div className="w-full flex items-center justify-center">
                 <h2 className="text-4xl font-mono font-bold text-zinc-300 mb-10 underline">

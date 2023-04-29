@@ -1,6 +1,6 @@
 const Hero = ({ buttonText, handleOnClick }) => {
   return (
-    <section className="w-full pt-48 pb-32">
+    <section className="w-full pt-48">
       <div className="flex flex-col items-center justify-center text-center">
         <h1 className="text-4xl uppercase font-mono text-zinc-300 font-bold md:text-5xl">
           Coffee Connoisseur
