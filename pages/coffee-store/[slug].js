@@ -41,6 +41,7 @@ export const getStaticPaths = async () => {
 
 const slug = (initialProps) => {
   const [coffeeStore, setCoffeeStore] = useState(initialProps.coffeeStores);
+  const [votingCount, setVotingCount] = useState(1);
 
   const router = useRouter();
   const slug = router.query.slug;
@@ -92,7 +93,9 @@ const slug = (initialProps) => {
   }, [slug, initialProps, initialProps.coffeeStores]);
 
   const handleUpVote = () => {
-    console.log("Up Vote");
+    setVotingCount((preValue) => {
+      return preValue + 1;
+    });
   };
 
   const { name, address, imgUrl, locality } = coffeeStore;
@@ -163,7 +166,7 @@ const slug = (initialProps) => {
                   className="fill-zinc-400"
                 />
                 <p className="text-zinc-400 text-md font-semibold md:text-xl">
-                  1
+                  {votingCount}
                 </p>
               </div>
               <button
