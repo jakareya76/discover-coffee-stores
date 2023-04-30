@@ -145,18 +145,20 @@ const slug = (initialProps) => {
                   {address}
                 </p>
               </div>
-              <div className="flex space-x-2 py-2">
-                <Image
-                  src="/near.svg"
-                  alt="img"
-                  width={24}
-                  height={24}
-                  className="fill-zinc-400"
-                />
-                <p className="text-zinc-400 text-md font-semibold md:text-xl">
-                  {locality}
-                </p>
-              </div>
+              {locality && (
+                <div className="flex space-x-2 py-2">
+                  <Image
+                    src="/near.svg"
+                    alt="img"
+                    width={24}
+                    height={24}
+                    className="fill-zinc-400"
+                  />
+                  <p className="text-zinc-400 text-md font-semibold md:text-xl">
+                    {locality}
+                  </p>
+                </div>
+              )}
               <div className="flex space-x-2 py-2">
                 <Image
                   src="/star.svg"
