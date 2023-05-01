@@ -12,8 +12,8 @@ import { isEmpty, fetcher } from "@/utils";
 
 export const getStaticProps = async (context) => {
   const params = context.params;
-  const coffeeStores = await fetchCoffeeStores();
 
+  const coffeeStores = await fetchCoffeeStores();
   const findCoffeeStoreById = coffeeStores.find((coffeStore) => {
     return coffeStore.id === params.slug;
   });
@@ -42,7 +42,9 @@ export const getStaticPaths = async () => {
 };
 
 const CoffeeStore = (initialProps) => {
-  const [coffeeStore, setCoffeeStore] = useState(initialProps.coffeeStores);
+  const [coffeeStore, setCoffeeStore] = useState(
+    initialProps.coffeeStores || {}
+  );
   const [votingCount, setVotingCount] = useState(0);
 
   const router = useRouter();
