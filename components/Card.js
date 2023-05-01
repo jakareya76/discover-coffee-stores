@@ -10,8 +10,8 @@ const Card = ({ name, img, url }) => {
           src={img}
           alt="img"
           width={320}
-          height={260}
-          className="object-cover max-h-44"
+          height={240}
+          className="object-cover w-[320px] h-[240px]"
         />
       </div>
     </Link>

@@ -8,7 +8,7 @@ import useSWR from "swr";
 
 import { fetchCoffeeStores } from "../../lib/coffee-stores";
 import { StoreContext } from "@/context/storeContext";
-import { isEmpty } from "@/utils";
+import { isEmpty, fetcher } from "@/utils";
 
 export const getStaticProps = async (context) => {
   const params = context.params;
@@ -41,9 +41,7 @@ export const getStaticPaths = async () => {
   };
 };
 
-const fetcher = (url) => fetch(url).then((r) => r.json());
-
-const slug = (initialProps) => {
+const CoffeeStore = (initialProps) => {
   const [coffeeStore, setCoffeeStore] = useState(initialProps.coffeeStores);
   const [votingCount, setVotingCount] = useState(0);
 
@@ -81,7 +79,7 @@ const slug = (initialProps) => {
     if (isEmpty(initialProps.coffeeStores)) {
       if (coffeeStores.length > 0) {
         const coffeeStoreFromContext = coffeeStores.find((coffeStore) => {
-          return coffeStore.id === slug;
+          return coffeStore.id.toString() === slug;
         });
 
         if (coffeeStoreFromContext) {
@@ -93,7 +91,9 @@ const slug = (initialProps) => {
       // SSG
       handleCreateCoffeeStore(initialProps.coffeeStores);
     }
-  }, [slug, initialProps, initialProps.coffeeStores]);
+  }, [slug, initialProps.coffeeStores, initialProps]);
+
+  const { name = "", address = "", locality = "", imgUrl = "" } = coffeeStore;
 
   const { data, error } = useSWR(`/api/getCoffeeStoreById?id=${slug}`, fetcher);
 
@@ -103,6 +103,10 @@ const slug = (initialProps) => {
       setVotingCount(data[0].voting);
     }
   }, [data]);
+
+  if (router.isFallback) {
+    return <h1 className="text-white text-xl">Loading...</h1>;
+  }
 
   const handleUpVote = async () => {
     try {
@@ -126,15 +130,9 @@ const slug = (initialProps) => {
     }
   };
 
-  if (router.isFallback) {
-    return <h1 className="text-white text-xl">Loading...</h1>;
-  }
-
   if (error) {
     return <div>Something went wrong retrieving coffee store page</div>;
   }
-
-  const { name, address, imgUrl, locality } = coffeeStore;
 
   return (
     <>
@@ -155,7 +153,10 @@ const slug = (initialProps) => {
           </h1>
           <div className="flex flex-col items-center justify-center gap-10 py-10 md:flex-row">
             <Image
-              src={imgUrl}
+              src={
+                imgUrl ||
+                "https://images.unsplash.com/photo-1504753793650-d4a2b783c15e?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=2000&q=80"
+              }
               alt="img"
               width={450}
               height={450}
@@ -214,4 +215,4 @@ const slug = (initialProps) => {
   );
 };
 
-export default slug;
+export default CoffeeStore;
