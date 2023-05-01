@@ -4,6 +4,8 @@ import Link from "next/link";
 import Head from "next/head";
 import Image from "next/image";
 
+import useSWR from "swr";
+
 import { fetchCoffeeStores } from "../../lib/coffee-stores";
 import { StoreContext } from "@/context/storeContext";
 import { isEmpty } from "@/utils";
@@ -39,9 +41,11 @@ export const getStaticPaths = async () => {
   };
 };
 
+const fetcher = (url) => fetch(url).then((r) => r.json());
+
 const slug = (initialProps) => {
   const [coffeeStore, setCoffeeStore] = useState(initialProps.coffeeStores);
-  const [votingCount, setVotingCount] = useState(1);
+  const [votingCount, setVotingCount] = useState(0);
 
   const router = useRouter();
   const slug = router.query.slug;
@@ -74,7 +78,6 @@ const slug = (initialProps) => {
   };
 
   useEffect(() => {
-    console.log("initial Render");
     if (isEmpty(initialProps.coffeeStores)) {
       if (coffeeStores.length > 0) {
         const coffeeStoreFromContext = coffeeStores.find((coffeStore) => {
@@ -92,17 +95,46 @@ const slug = (initialProps) => {
     }
   }, [slug, initialProps, initialProps.coffeeStores]);
 
-  const handleUpVote = () => {
-    setVotingCount((preValue) => {
-      return preValue + 1;
-    });
-  };
+  const { data, error } = useSWR(`/api/getCoffeeStoreById?id=${slug}`, fetcher);
 
-  const { name, address, imgUrl, locality } = coffeeStore;
+  useEffect(() => {
+    if (data && data.length > 0) {
+      setCoffeeStore(data[0]);
+      setVotingCount(data[0].voting);
+    }
+  }, [data]);
+
+  const handleUpVote = async () => {
+    try {
+      const response = await fetch("/api/favouriteCoffeeStoreById", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id: slug }),
+      });
+
+      const dbCoffeeStore = await response.json();
+
+      if (dbCoffeeStore && dbCoffeeStore.length > 0) {
+        setVotingCount((preValue) => {
+          return preValue + 1;
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   if (router.isFallback) {
     return <h1 className="text-white text-xl">Loading...</h1>;
   }
+
+  if (error) {
+    return <div>Something went wrong retrieving coffee store page</div>;
+  }
+
+  const { name, address, imgUrl, locality } = coffeeStore;
 
   return (
     <>
@@ -123,14 +155,11 @@ const slug = (initialProps) => {
           </h1>
           <div className="flex flex-col items-center justify-center gap-10 py-10 md:flex-row">
             <Image
-              src={
-                imgUrl ||
-                "https://images.unsplash.com/photo-1493857671505-72967e2e2760?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80"
-              }
+              src={imgUrl}
               alt="img"
-              width={420}
-              height={260}
-              className="max-h-[360px] w-full object-cover rounded md:w-[500px]"
+              width={450}
+              height={450}
+              className="object-cover rounded max-h-72"
             />
             <div className="w-full md:w-1/2">
               <div className="flex space-x-2 py-2">

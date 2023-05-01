@@ -11,7 +11,7 @@ const Card = ({ name, img, url }) => {
           alt="img"
           width={320}
           height={260}
-          className="object-cover h-[220px]"
+          className="object-cover max-h-44"
         />
       </div>
     </Link>
